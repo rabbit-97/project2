@@ -14,21 +14,21 @@ const prisma = new PrismaClient({
 // 2. 데이터베이스에 아이템 저장하기
 router.post('/item/create', async (req, res) => {
   try {
-    const itemcode = req.body.item_code;
-    const itemname = req.body.item_name;
+    const itemCode = req.body.item_code;
+    const itemName = req.body.item_name;
     const atk = req.body.atk;
     const price = req.body.price;
 
-    const createitem = await prisma.item.create({
+    const createItem = await prisma.item.create({
       data: {
-        itemcode: itemcode,
-        itemname: itemname,
+        itemCode: itemCode,
+        itemName: itemName,
         atk: atk,
         price: price,
       },
     });
-    res.status(200).json({ item_info: createitem });
-    console.log(createitem);
+    res.status(200).json({ item_info: createItem });
+    console.log(createItem);
   } catch (error) {
     res.status(500).json({ error: '아이템 중복에 실패' });
     console.log(error);
@@ -43,15 +43,20 @@ router.get('/item/list', (req, res) => {
 // [필수] 3. 특정 아이템 조회
 // 아이템 코드는 URL의 parameter로 전달받기
 router.get('/item/:itemCode', async (req, res) => {
-  const itemCode = parseInt(req.params.itemCode);
-  //찾기
-  const result = await prisma.item.findUnique({ where: { itemCode: itemCode } });
-  if (finditem == null) {
-    res.status(404).json({ error: '아이템을 찾을 수 없어요' });
-    return;
+  try {
+    const itemCode = parseInt(req.params.itemCode);
+    //찾기
+    const findItem = await prisma.item.findUnique({ where: { itemCode: itemCode } });
+    if (findItem == null) {
+      res.status(404).json({ error: '아이템을 찾을 수 없어요' });
+      return;
+    }
+    //보내기
+    res.status(200).json({ item_info: findItem });
+  } catch (error) {
+    res.status(500).json({ error: '아이템 조회에 실패했어요' });
+    console.log(error);
   }
-  //보내기
-  res.status(404).json({ item_info: finditem });
 });
 
 // [필수] 4. 특정 아이템 수정
