@@ -17,7 +17,7 @@
     "prettier": "^3.3.3"
   },
   "dependencies": {
-    "@prisma/client": "^5.19.1",
+    "@prisma/client": "5.19.1",
     "cookie-parser": "^1.4.6",
     "express": "^4.19.2",
     "prisma": "^5.19.1"
