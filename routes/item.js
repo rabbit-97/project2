@@ -68,8 +68,23 @@ router.get('/item/:itemCode', async (req, res) => {
 // [필수] 4. 특정 아이템 수정
 // 아이템 코드는 URL의 parameter로 전달 받기
 // 수정할 아이템 명, 아이템 능력을 req(request)에서 json으로 전달받기
-router.post('/item/update', (req, res) => {
-  prisma.item.update();
+router.post('/item/update/:itemCode', async (req, res) => {
+  try {
+    const itemCode = +req.params.itemCode;
+    const { itemName, atk } = req.body;
+
+    const updatedItem = await prisma.item.update({
+      where: { itemCode },
+      data: {
+        itemName,
+        atk,
+      },
+    });
+    res.status(200).json({ message: '아이템이 수정되엇습니다.', updatedItem });
+  } catch (error) {
+    console.error('아이템 수정 실패:', error);
+    res.status(500).json({ error: '아이템 수정 중 오류' });
+  }
 });
 
 export default router;
