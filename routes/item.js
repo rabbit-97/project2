@@ -36,8 +36,14 @@ router.post('/item/create', async (req, res) => {
 });
 
 // [필수] 2. 아이템 목록 조회
-router.get('/item/list', (req, res) => {
-  prisma.item.findMany();
+router.get('/item/list', async (req, res) => {
+  try {
+    prisma.item = await prisma.item.findMany();
+    res.status(200).json({ item });
+  } catch (error) {
+    console.error('아이템 목록 조회 실패:', error);
+    res.status(500).json({ error: '아이템 목록 조회 중 오류 발생' });
+  }
 });
 
 // [필수] 3. 특정 아이템 조회
