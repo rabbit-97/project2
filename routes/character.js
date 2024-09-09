@@ -36,7 +36,23 @@ router.post('/character/create', async (req, res) => {
 });
 
 // [필수] 4. 캐릭터 삭제
-router.post('/character/delete', (req, res) => {});
+router.post('/character/delete', async (req, res) => {
+  try {
+    const characterId = req.body.characterid;
+    console.log(`캐릭터 아이디 : ${characterId}`);
+    console.log(typeof req.body.characterid);
+    await prisma.character.delete({
+      where: {
+        characterId,
+      },
+    });
+
+    res.status(200).json({ message: '캐릭터가 성공적으로 삭제되었습니다.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '캐릭터 삭제 실패' });
+  }
+});
 
 // [필수] 5. 캐릭터 상세 조회
 router.get('/character/detail', (req, res) => {});
