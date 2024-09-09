@@ -22,6 +22,14 @@ router.post('/account/join', async (req, res) => {
       return res.status(400).json({ error: '입력을 안한 부분이 있어요.' });
     }
 
+    const existingAccount = await prisma.account.findUnique({
+      where: { accountId: +accountId },
+    });
+
+    if (existingAccount) {
+      return res.status(400).json({ error: '이미 사용 중인 아이디입니다.' });
+    }
+
     const hashedPassword = await bcrypt.hash(accountPassword, 10);
 
     const newAccount = await prisma.account.create({
