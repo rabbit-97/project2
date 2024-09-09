@@ -30,8 +30,12 @@ router.post('/item/create', async (req, res) => {
     res.status(200).json({ item_info: createItem });
     console.log(createItem);
   } catch (error) {
-    res.status(500).json({ error: '아이템 중복에 실패' });
-    console.log(error);
+    if (error.code === 'P2002') {
+      res.status(400).json({ error: '중복된 아이템 코드입니다.' });
+    } else {
+      res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
+    console.error('아이템 생성 오류:', error);
   }
 });
 
@@ -80,10 +84,15 @@ router.post('/item/update/:itemCode', async (req, res) => {
         atk,
       },
     });
-    res.status(200).json({ message: '아이템이 수정되엇습니다.', updatedItem });
+    res.status(200).json({ message: '아이템이 수정되었습니다.', updatedItem });
   } catch (error) {
     console.error('아이템 수정 실패:', error);
-    res.status(500).json({ error: '아이템 수정 중 오류' });
+
+    if (error.code === 'P2025') {
+      res.status(404).json({ error: '아이템을 찾을 수 없습니다.' });
+    } else {
+      res.status(500).json({ error: '아이템 수정 중 오류가 발생했습니다.' });
+    }
   }
 });
 
