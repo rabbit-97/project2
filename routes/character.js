@@ -55,7 +55,20 @@ router.post('/character/delete', async (req, res) => {
 });
 
 // [필수] 5. 캐릭터 상세 조회
-router.get('/character/detail', (req, res) => {});
+router.get('/character/detail/:characterId', async (req, res) => {
+  const { characterId } = req.params;
+  console.log(`캐릭터 아이디 : ${characterId}`);
+  console.log(typeof req.body.characterid);
+  try {
+    const character = await prisma.character.findUnique({
+      where: { characterId: +characterId },
+    });
+    res.json(character);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '찾기 실패' });
+  }
+});
 
 // 6-3. [도전] "회원"에 귀속된 캐릭터를 생성하기
 router.post('/character/createfromuser', (req, res) => {});
