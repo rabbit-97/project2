@@ -14,8 +14,8 @@ const prisma = new PrismaClient({
 // 2. 데이터베이스에 아이템 저장하기
 router.post('/item/create', async (req, res) => {
   try {
-    const itemCode = req.body.item_code;
-    const itemName = req.body.item_name;
+    const itemCode = req.body.itemcode;
+    const itemName = req.body.itemname;
     const atk = req.body.atk;
     const price = req.body.price;
 
