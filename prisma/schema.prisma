@@ -31,7 +31,8 @@ model character {
 }
 
 model account {
-  accountId Int @id
+  accountId       Int @id
+  accountPassword String
 }
 
 
