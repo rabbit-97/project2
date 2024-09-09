@@ -23,7 +23,11 @@ model item {
 }
 
 model character {
-  characterId Int @id
+  characterId   Int    @id
+  characterName String @unique
+  health        Int    @default(500)
+  power         Int    @default(100)
+  money         Int    @default(10000)
 }
 
 model account {
