@@ -10,7 +10,30 @@ const prisma = new PrismaClient({
 });
 
 // [필수] 3. 캐릭터 생성
-router.post('/character/create', (req, res) => {});
+router.post('/character/create', async (req, res) => {
+  try {
+    const characterId = req.body.characterid;
+    const characterName = req.body.charactername;
+    const health = req.body.health;
+    const power = req.body.power;
+    const money = req.body.money;
+
+    const createCharacter = await prisma.character.create({
+      data: {
+        characterId: characterId,
+        characterName: characterName,
+        health: health,
+        power: power,
+        money: money,
+      },
+    });
+    res.status(200).json({ character_info: createCharacter });
+    console.log(createCharacter);
+  } catch (error) {
+    res.status(500).json({ error: '캐릭터 생성 실패' });
+    console.log(error);
+  }
+});
 
 // [필수] 4. 캐릭터 삭제
 router.post('/character/delete', (req, res) => {});
