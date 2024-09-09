@@ -30,11 +30,15 @@ router.post('/character/create', async (req, res) => {
     res.status(200).json({ character_info: createCharacter });
     console.log(createCharacter);
   } catch (error) {
-    res.status(500).json({ error: '캐릭터 생성 실패' });
-    console.log(error);
+    console.error('캐릭터 생성 실패:', error);
+
+    if (error.code === 'P2002') {
+      res.status(400).json({ error: '중복된 캐릭터 이름입니다.' });
+    } else {
+      res.status(500).json({ error: '캐릭터 생성 중 오류가 발생했습니다.' });
+    }
   }
 });
-
 // [필수] 4. 캐릭터 삭제
 router.post('/character/delete', async (req, res) => {
   try {
@@ -47,10 +51,16 @@ router.post('/character/delete', async (req, res) => {
       },
     });
 
-    res.status(200).json({ message: '캐릭터가 성공적으로 삭제되었습니다.' });
+    res.status(200).json({ character_info: createCharacter });
+    console.log(createCharacter);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: '캐릭터 삭제 실패' });
+    console.error('캐릭터 삭제 실패:', error);
+
+    if (error.code === 'P2025') {
+      res.status(400).json({ error: '찾을 수 없는 아이디 입니다..' });
+    } else {
+      res.status(500).json({ error: '캐릭터 삭제 중 오류가 발생했습니다.' });
+    }
   }
 });
 
@@ -63,10 +73,14 @@ router.get('/character/detail/:characterId', async (req, res) => {
     const character = await prisma.character.findUnique({
       where: { characterId: +characterId },
     });
-    res.json(character);
+    if (character) {
+      res.status(200).json(character);
+    } else {
+      res.status(404).json({ error: '캐릭터를 찾을 수 없습니다.' });
+    }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: '찾기 실패' });
+    console.error('캐릭터 조회 실패:', error);
+    res.status(500).json({ error: '캐릭터 조회 중 오류가 발생했습니다.' });
   }
 });
 
