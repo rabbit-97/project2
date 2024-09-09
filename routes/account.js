@@ -38,6 +38,33 @@ router.post('/account/join', async (req, res) => {
   }
 });
 // 6-2. [도전] 로그인
-router.post('/account/login', (req, res) => {});
+router.post('/account/login', async (req, res) => {
+  try {
+    const { accountId, accountPassword } = req.body;
+
+    if (!accountId || !accountPassword) {
+      return res.status(400).json({ error: '입력을 안한 부분이 있어요.' });
+    }
+
+    const account = await prisma.account.findUnique({
+      where: { accountId: +accountId },
+    });
+
+    if (!account) {
+      return res.status(401).json({ error: '존재하지 않는 계정입니다.' });
+    }
+
+    const Password = await bcrypt.compare(accountPassword, account.accountPassword);
+
+    if (!Password) {
+      return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
+    }
+
+    res.status(200).json({ message: '로그인 성공' });
+  } catch (error) {
+    console.error('로그인 오류:', error);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+  }
+});
 
 export default router;
