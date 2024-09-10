@@ -55,7 +55,7 @@ router.post('/account/login', async (req, res) => {
     }
 
     const account = await prisma.account.findUnique({
-      where: { accountId: +accountId },
+      where: { accountId: accountId },
     });
 
     if (!account) {
