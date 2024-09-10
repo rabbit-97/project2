@@ -23,7 +23,7 @@ router.post('/account/join', async (req, res) => {
     }
 
     const existingAccount = await prisma.account.findUnique({
-      where: { accountId: +accountId },
+      where: { accountId: accountId },
     });
 
     if (existingAccount) {
@@ -34,7 +34,7 @@ router.post('/account/join', async (req, res) => {
 
     const newAccount = await prisma.account.create({
       data: {
-        accountId: +accountId,
+        accountId: accountId,
         accountPassword: hashedPassword,
       },
     });

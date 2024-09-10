@@ -83,8 +83,16 @@ router.get('/character/detail/:characterId', async (req, res) => {
 });
 
 // 6-3. [도전] "회원"에 귀속된 캐릭터를 생성하기
-router.post('/character/createfromuser', (req, res) => {
-  const { characterId, health, power, money } = req.body;
+router.post('/character/createfromuser', async (req, res) => {
+  const { characterId } = req.body;
+
+  const account = await prisma.account.findUnique({
+    where: { accountId: characterId },
+  });
+
+  if (!account) {
+    return res.status(404).json({ error: '존재하지 않는 회원입니다.' });
+  }
 });
 
 // 6-4. [도전] "회원"에 귀속된 캐릭터를 삭제하기
