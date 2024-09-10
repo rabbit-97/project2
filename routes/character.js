@@ -14,12 +14,7 @@ const prisma = new PrismaClient({
 router.post('/character/create', authMiddleware, async (req, res) => {
   try {
     const { characterId } = req.body;
-    const userId = req.user.accountId;
 
-    console.log('Request Body:', req.body);
-
-    console.log('Received characterId:', characterId);
-    console.log('Received userId:', userId);
     if (!characterId) {
       return res.status(400).json({ error: '캐릭터 ID가 필요합니다.' });
     }
@@ -68,16 +63,22 @@ router.post('/character/delete', async (req, res) => {
 });
 
 // [필수] 5. 캐릭터 상세 조회
-router.get('/character/detail/:characterId', async (req, res) => {
+router.get('/character/detail/:characterId', authMiddleware, async (req, res) => {
   const { characterId } = req.params;
-  console.log(`캐릭터 아이디 : ${characterId}`);
-  console.log(typeof req.body.characterid);
+  const userId = req.user ? req.user.accountId : null;
+
   try {
     const character = await prisma.character.findUnique({
       where: { characterId: characterId },
     });
+
     if (character) {
-      res.status(200).json(character);
+      if (userId && character.accountId === userId) {
+        res.status(200).json(character);
+      } else {
+        const { money, ...publicCharacterData } = character;
+        res.status(200).json(publicCharacterData);
+      }
     } else {
       res.status(404).json({ error: '캐릭터를 찾을 수 없습니다.' });
     }
