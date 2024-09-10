@@ -13,7 +13,6 @@ const prisma = new PrismaClient({
 router.post('/character/create', async (req, res) => {
   try {
     const characterId = req.body.characterid;
-    const characterName = req.body.charactername;
     const health = req.body.health;
     const power = req.body.power;
     const money = req.body.money;
@@ -21,7 +20,6 @@ router.post('/character/create', async (req, res) => {
     const createCharacter = await prisma.character.create({
       data: {
         characterId: characterId,
-        characterName: characterName,
         health: health,
         power: power,
         money: money,
@@ -71,7 +69,7 @@ router.get('/character/detail/:characterId', async (req, res) => {
   console.log(typeof req.body.characterid);
   try {
     const character = await prisma.character.findUnique({
-      where: { characterId: +characterId },
+      where: { characterId: characterId },
     });
     if (character) {
       res.status(200).json(character);
@@ -85,7 +83,9 @@ router.get('/character/detail/:characterId', async (req, res) => {
 });
 
 // 6-3. [도전] "회원"에 귀속된 캐릭터를 생성하기
-router.post('/character/createfromuser', (req, res) => {});
+router.post('/character/createfromuser', (req, res) => {
+  const { characterId, health, power, money } = req.body;
+});
 
 // 6-4. [도전] "회원"에 귀속된 캐릭터를 삭제하기
 router.post('/character/createfrom', (req, res) => {});
