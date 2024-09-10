@@ -1,6 +1,10 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const router = express.Router();
 
@@ -11,15 +15,23 @@ const prisma = new PrismaClient({
 });
 
 // 6. [도전] 인증 미들웨어 구현
+// 강의 내용 - 계획서(발제) 안보고 하다가 처음부터 다시 구현 필요
 // Request의 Authorization 헤더에서 JWT를 가져와서 인증 된 사용자인지 확인하는 Middleware를 구현합니다
+// 아이디, 비밀번호, 비밀번호 확인, 이름
+// 영어 소문자랑 숫자로만 구성 되어야한다. 중복 불가
+// 최소 여섯자 이상이며 비밀번호 확인과 일치
 
 // 6-1. [도전] 회원가입
 router.post('/account/join', async (req, res) => {
   try {
-    const { accountId, accountPassword } = req.body;
+    const { accountId, accountPassword, confirmPassword, name } = req.body;
 
-    if (!accountId || !accountPassword) {
+    if (!accountId || !accountPassword || !confirmPassword || !name) {
       return res.status(400).json({ error: '입력을 안한 부분이 있어요.' });
+    }
+
+    if (accountPassword !== confirmPassword) {
+      return res.status(400).json({ error: '비밀번호와 비밀번호 확인이 일치하지 않습니다.' });
     }
 
     const existingAccount = await prisma.account.findUnique({
@@ -36,6 +48,7 @@ router.post('/account/join', async (req, res) => {
       data: {
         accountId: accountId,
         accountPassword: hashedPassword,
+        name: name,
       },
     });
 
@@ -45,6 +58,7 @@ router.post('/account/join', async (req, res) => {
     res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
 });
+
 // 6-2. [도전] 로그인
 router.post('/account/login', async (req, res) => {
   try {
@@ -62,13 +76,18 @@ router.post('/account/login', async (req, res) => {
       return res.status(401).json({ error: '존재하지 않는 계정입니다.' });
     }
 
-    const Password = await bcrypt.compare(accountPassword, account.accountPassword);
-
-    if (!Password) {
+    const passwordMatch = await bcrypt.compare(accountPassword, account.accountPassword);
+    if (!passwordMatch) {
       return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
     }
 
-    res.status(200).json({ message: '로그인 성공' });
+    const token = jwt.sign(
+      { accountId: account.accountId, name: account.name },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' },
+    );
+
+    res.status(200).json({ message: '로그인 성공', token: token });
   } catch (error) {
     console.error('로그인 오류:', error);
     res.status(500).json({ error: '서버 오류가 발생했습니다.' });

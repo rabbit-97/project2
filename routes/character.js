@@ -1,5 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import authMiddleware from '../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -10,21 +11,25 @@ const prisma = new PrismaClient({
 });
 
 // [필수] 3. 캐릭터 생성
-router.post('/character/create', async (req, res) => {
+router.post('/character/create', authMiddleware, async (req, res) => {
   try {
-    const characterId = req.body.characterid;
-    const health = req.body.health;
-    const power = req.body.power;
-    const money = req.body.money;
+    const { characterId } = req.body;
+    const userId = req.user.accountId;
+
+    console.log('Request Body:', req.body);
+
+    console.log('Received characterId:', characterId);
+    console.log('Received userId:', userId);
+    if (!characterId) {
+      return res.status(400).json({ error: '캐릭터 ID가 필요합니다.' });
+    }
 
     const createCharacter = await prisma.character.create({
       data: {
         characterId: characterId,
-        health: health,
-        power: power,
-        money: money,
       },
     });
+
     res.status(200).json({ character_info: createCharacter });
     console.log(createCharacter);
   } catch (error) {
@@ -83,16 +88,9 @@ router.get('/character/detail/:characterId', async (req, res) => {
 });
 
 // 6-3. [도전] "회원"에 귀속된 캐릭터를 생성하기
-router.post('/character/createfromuser', async (req, res) => {
-  const { characterId } = req.body;
-
-  const account = await prisma.account.findUnique({
-    where: { accountId: characterId },
-  });
-
-  if (!account) {
-    return res.status(404).json({ error: '존재하지 않는 회원입니다.' });
-  }
+router.post('/character/createfromuser', authMiddleware, async (req, res) => {
+  const authResult = await isValidAuth(req);
+  console.log(`isValidAuth:${authResult}`);
 });
 
 // 6-4. [도전] "회원"에 귀속된 캐릭터를 삭제하기
