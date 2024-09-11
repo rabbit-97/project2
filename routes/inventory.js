@@ -164,7 +164,7 @@ router.post('/item/equip', authMiddleware, async (req, res) => {
     const { characterId, itemCode } = req.body;
 
     if (!characterId || !itemCode) {
-      return res.status(400).json({ error: '필수 입력 값이 누락되었습니다.' });
+      return res.status(400).json({ error: '필수 입력 값리 누락되었습니다.' });
     }
 
     // 캐릭터가 존재하는지 확인
@@ -186,6 +186,8 @@ router.post('/item/equip', authMiddleware, async (req, res) => {
     }
 
     // 기존 장착된 아이템이 있는지 확인
+    // 아이템 장착 가능 공간 최대 1개
+    // 다른 아이템을 장착하면 기존 아이템은 장착 해제 하도록 구현 했습니다)
     const EquippedItem = await prisma.equippedItem.findFirst({
       where: { characterId: characterId },
     });
@@ -235,6 +237,67 @@ router.post('/item/equip', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('아이템 장착 실패:', error);
     res.status(500).json({ error: '아이템 장착 중 오류가 발생했습니다.' });
+  }
+});
+
+// 아이템 장착 해제
+router.post('/item/unequip', authMiddleware, async (req, res) => {
+  try {
+    const { characterId } = req.body;
+
+    if (!characterId) {
+      return res.status(400).json({ error: '입력 안한 부분이 있습니다.' });
+    }
+
+    // 캐릭터가 존재하는지 확인
+    const character = await prisma.character.findUnique({
+      where: { characterId: characterId },
+    });
+
+    if (!character) {
+      return res.status(404).json({ error: '캐릭터를 찾을 수 없습니다.' });
+    }
+
+    // 장착된 아이템이 있는지 확인
+    const equippedItem = await prisma.equippedItem.findFirst({
+      where: { characterId: characterId },
+    });
+
+    if (!equippedItem) {
+      return res.status(404).json({ error: '장착된 아이템이 없습니다.' });
+    }
+
+    // 장착된 아이템의 정보를 가져오기
+    const item = await prisma.item.findUnique({
+      where: { itemCode: equippedItem.itemCode },
+    });
+
+    if (!item) {
+      return res.status(404).json({ error: '아이템을 찾을 수 없습니다.' });
+    }
+
+    // 아이템 장착 해제
+    await prisma.equippedItem.delete({
+      where: { equippedItemId: equippedItem.equippedItemId },
+    });
+
+    // 캐릭터의 스탯에서 아이템의 효과를 제거
+    const updatedCharacter = await prisma.character.update({
+      where: { characterId: characterId },
+      data: {
+        health: {
+          decrement: item.hth,
+        },
+        power: {
+          decrement: item.atk,
+        },
+      },
+    });
+
+    res.status(200).json({ message: `아이템 ${item.itemName} 장착 해제`, updatedCharacter });
+  } catch (error) {
+    console.error('아이템 장착 해제 실패:', error);
+    res.status(500).json({ error: '아이템 장착 해제 중 오류가 발생했습니다.' });
   }
 });
 
