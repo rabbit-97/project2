@@ -15,25 +15,48 @@ datasource db {
 }
 
 model item {
-  // itemCode: 정수형, 기본 키
-  itemCode  Int @id
+  itemCode  Int    @id
   itemName  String
   atk       Int
   hth       Int
   price     Int
+  inventory Inventory[]
+  equippedItems EquippedItem[]
 }
 
 model character {
-  characterId   String @id
-  health        Int    @default(500)
-  power         Int    @default(100)
-  money         Int    @default(10000)
+  characterId   String   @id
+  health        Int      @default(500)
+  power         Int      @default(100)
+  money         Int      @default(10000)
+  account       account  @relation(fields: [accountId], references: [accountId])
+  accountId     String
+  inventory     Inventory[]
+  equippedItems EquippedItem[]
 }
 
 model account {
-  accountId       String @id
+  accountId       String   @id
   accountPassword String
   name            String
+  characters      character[] 
+}
+
+model Inventory {
+  inventoryId Int    @id @default(autoincrement())
+  character   character @relation(fields: [characterId], references: [characterId])
+  characterId String
+  item        item @relation(fields: [itemCode], references: [itemCode])
+  itemCode    Int
+  quantity    Int  
+}
+
+model EquippedItem {
+  equippedItemId Int    @id @default(autoincrement())
+  character      character @relation(fields: [characterId], references: [characterId])
+  characterId    String
+  item           item @relation(fields: [itemCode], references: [itemCode])
+  itemCode       Int
 }
 
 
