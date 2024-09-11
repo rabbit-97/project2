@@ -164,7 +164,7 @@ router.post('/item/equip', authMiddleware, async (req, res) => {
     const { characterId, itemCode } = req.body;
 
     if (!characterId || !itemCode) {
-      return res.status(400).json({ error: '필수 입력 값리 누락되었습니다.' });
+      return res.status(400).json({ error: '필수 입력 값이 누락되었습니다.' });
     }
 
     // 캐릭터가 존재하는지 확인
