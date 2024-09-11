@@ -48,7 +48,6 @@ model Inventory {
   characterId String
   item        Item @relation(fields: [itemCode], references: [itemCode])
   itemCode    Int
-  count       Int  
 }
 
 model EquippedItem {
