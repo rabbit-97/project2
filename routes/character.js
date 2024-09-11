@@ -37,25 +37,34 @@ router.post('/character/create', authMiddleware, async (req, res) => {
     }
   }
 });
-// [필수] 4. 캐릭터 삭제
-router.post('/character/delete', async (req, res) => {
+// [필수] 4. 캐릭터 삭제 // 토큰 관련 로직 추가 필수 - 잊어먹지 말자
+router.post('/character/delete', authMiddleware, async (req, res) => {
   try {
-    const characterId = req.body.characterid;
-    console.log(`캐릭터 아이디 : ${characterId}`);
-    console.log(typeof req.body.characterid);
-    await prisma.character.delete({
-      where: {
-        characterId,
-      },
+    const { characterid } = req.body;
+    const userId = req.user.id;
+
+    const character = await prisma.character.findUnique({
+      where: { characterId: characterid },
     });
 
-    res.status(200).json({ character_info: createCharacter });
-    console.log(createCharacter);
+    if (!character) {
+      return res.status(404).json({ error: '해당 캐릭터를 찾을 수 없습니다.' });
+    }
+
+    if (character.userId !== userId) {
+      return res.status(403).json({ error: '이 캐릭터를 삭제할 권한이 없습니다.' });
+    }
+
+    await prisma.character.delete({
+      where: { characterId: characterid },
+    });
+
+    res.status(200).json({ message: '캐릭터가 성공적으로 삭제되었습니다.' });
   } catch (error) {
     console.error('캐릭터 삭제 실패:', error);
 
     if (error.code === 'P2025') {
-      res.status(400).json({ error: '찾을 수 없는 아이디 입니다..' });
+      res.status(400).json({ error: '찾을 수 없는 아이디입니다.' });
     } else {
       res.status(500).json({ error: '캐릭터 삭제 중 오류가 발생했습니다.' });
     }
