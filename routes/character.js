@@ -10,7 +10,7 @@ const prisma = new PrismaClient({
   errorFormat: 'pretty',
 });
 
-// [필수] 3. 캐릭터 생성
+// [필수] **3. 캐릭터 생성**
 router.post('/character/create', authMiddleware, async (req, res) => {
   try {
     const { characterId } = req.body;
@@ -41,7 +41,7 @@ router.post('/character/create', authMiddleware, async (req, res) => {
     }
   }
 });
-// [필수] 4. 캐릭터 삭제 // 토큰 관련 로직 추가 필수 - 잊어먹지 말자
+// [필수] **4. 캐릭터 삭제**
 router.post('/character/delete', authMiddleware, async (req, res) => {
   try {
     const { characterid } = req.body;
@@ -80,7 +80,7 @@ router.post('/character/delete', authMiddleware, async (req, res) => {
   }
 });
 
-// [필수] 5. 캐릭터 상세 조회
+// [필수] **5. 캐릭터 상세 조회**
 router.get('/character/detail/:characterId', authMiddleware, async (req, res) => {
   const { characterId } = req.params;
   const userId = req.user ? req.user.accountId : null;

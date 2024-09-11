@@ -9,7 +9,7 @@ const prisma = new PrismaClient({
   errorFormat: 'pretty',
 });
 
-// 아이템 구입 api
+// **아이템 구입 api**
 router.post('/item/buy', authMiddleware, async (req, res) => {
   console.log('테스트:', req.body);
   try {
@@ -71,7 +71,7 @@ router.post('/item/buy', authMiddleware, async (req, res) => {
   }
 });
 
-// 아이템 판매 api
+// **아이템 판매 api**
 router.post('/item/sell', authMiddleware, async (req, res) => {
   try {
     const { itemCode, count, characterId } = req.body;
@@ -157,7 +157,7 @@ router.post('/item/sell', authMiddleware, async (req, res) => {
   }
 });
 
-// [필수] 6. 아이템 장착
+// **아이템 장착**
 // 요청 본문에서 characterId, itemCode, count를 전달받아 캐릭터에게 아이템을 장착
 router.post('/item/equip', authMiddleware, async (req, res) => {
   try {
@@ -187,7 +187,7 @@ router.post('/item/equip', authMiddleware, async (req, res) => {
 
     // 기존 장착된 아이템이 있는지 확인
     // 아이템 장착 가능 공간 최대 1개
-    // 다른 아이템을 장착하면 기존 아이템은 장착 해제 하도록 구현 했습니다)
+    // 다른 아이템을 장착하면 기존 아이템은 장착 해제 하도록 구현 했습니다
     const EquippedItem = await prisma.equippedItem.findFirst({
       where: { characterId: characterId },
     });
@@ -240,7 +240,7 @@ router.post('/item/equip', authMiddleware, async (req, res) => {
   }
 });
 
-// 아이템 장착 해제
+// **아이템 장착 해제**
 router.post('/item/unequip', authMiddleware, async (req, res) => {
   try {
     const { characterId } = req.body;

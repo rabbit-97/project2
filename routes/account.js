@@ -21,7 +21,7 @@ const prisma = new PrismaClient({
 // 영어 소문자랑 숫자로만 구성 되어야한다. 중복 불가
 // 최소 여섯자 이상이며 비밀번호 확인과 일치
 
-// 6-1. [도전] 회원가입
+// 6-1. [도전] **회원가입**
 router.post('/account/join', async (req, res) => {
   try {
     const { accountId, accountPassword, confirmPassword, name } = req.body;
@@ -59,7 +59,7 @@ router.post('/account/join', async (req, res) => {
   }
 });
 
-// 6-2. [도전] 로그인
+// 6-2. [도전]** 로그인**
 router.post('/account/login', async (req, res) => {
   try {
     const { accountId, accountPassword } = req.body;

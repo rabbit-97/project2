@@ -9,7 +9,7 @@ const prisma = new PrismaClient({
   errorFormat: 'pretty',
 });
 
-// [필수] 1. 아이템 생성
+// [필수] **1. 아이템 생성**
 // 1. 아이템 코드, 아이템 명, 아이템 능력, 아이템 가격을 req(request)에서 json으로 전달받기
 // 2. 데이터베이스에 아이템 저장하기
 router.post('/item/create', async (req, res) => {
@@ -42,7 +42,7 @@ router.post('/item/create', async (req, res) => {
   }
 });
 
-// [필수] 2. 아이템 목록 조회
+// [필수] **2. 아이템 목록 조회**
 router.get('/item/list', async (req, res) => {
   try {
     // 아이템 목록 조회
@@ -60,7 +60,7 @@ router.get('/item/list', async (req, res) => {
   }
 });
 
-// [필수] 3. 특정 아이템 조회
+// [필수] **3. 특정 아이템 조회**
 // 아이템 코드는 URL의 parameter로 전달받기
 router.get('/item/:itemCode', async (req, res) => {
   try {
@@ -99,7 +99,7 @@ router.get('/item/:itemCode', async (req, res) => {
   }
 });
 
-// [필수] 4. 특정 아이템 수정
+// [필수] 4.** 특정 아이템 수정**
 // 아이템 코드는 URL의 parameter로 전달 받기
 // 수정할 아이템 명, 아이템 능력을 req(request)에서 json으로 전달받기
 router.post('/item/update/:itemCode', async (req, res) => {
