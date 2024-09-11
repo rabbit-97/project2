@@ -19,7 +19,7 @@ router.post('/character/create', authMiddleware, async (req, res) => {
     if (!characterId) {
       return res.status(400).json({ error: '캐릭터 ID가 필요합니다.' });
     }
-
+    // 캐릭터 생성
     const createCharacter = await prisma.character.create({
       data: {
         characterId: characterId,
@@ -59,7 +59,6 @@ router.post('/character/delete', authMiddleware, async (req, res) => {
     await prisma.inventory.deleteMany({
       where: { characterId: characterid },
     });
-
     await prisma.equippedItem.deleteMany({
       where: { characterId: characterid },
     });
@@ -87,14 +86,17 @@ router.get('/character/detail/:characterId', authMiddleware, async (req, res) =>
   const userId = req.user ? req.user.accountId : null;
 
   try {
+    // 캐릭터 조회
     const character = await prisma.character.findUnique({
       where: { characterId: characterId },
     });
 
     if (character) {
+      // 로그인 한 유저가 캐릭터 소유자면 전체 정보 공개
       if (userId && character.accountId === userId) {
         res.status(200).json(character);
       } else {
+        // 아니라면 일부 정보 공개(돈 제외 모든 정보)
         const { money, ...publicCharacterData } = character;
         res.status(200).json(publicCharacterData);
       }

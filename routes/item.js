@@ -14,12 +14,13 @@ const prisma = new PrismaClient({
 // 2. 데이터베이스에 아이템 저장하기
 router.post('/item/create', async (req, res) => {
   try {
+    // 아이템 정보 요청 보내기
     const itemCode = req.body.itemcode;
     const itemName = req.body.itemname;
     const atk = req.body.atk;
     const hth = req.body.hth;
     const price = req.body.price;
-
+    // 데이터 베이스에 아이템 저장
     const createItem = await prisma.item.create({
       data: {
         itemCode: itemCode,
@@ -44,6 +45,7 @@ router.post('/item/create', async (req, res) => {
 // [필수] 2. 아이템 목록 조회
 router.get('/item/list', async (req, res) => {
   try {
+    // 아이템 목록 조회
     const items = await prisma.item.findMany({
       select: {
         itemCode: true,
@@ -62,8 +64,9 @@ router.get('/item/list', async (req, res) => {
 // 아이템 코드는 URL의 parameter로 전달받기
 router.get('/item/:itemCode', async (req, res) => {
   try {
+    // url로 아이템 코드를 전달 받아서 해당 아이템 정보 상세 조회
     const itemCode = parseInt(req.params.itemCode);
-
+    // 데이터 베이스에서 특정 아이템 조회
     const findItem = await prisma.item.findUnique({
       where: { itemCode: itemCode },
       select: {
@@ -78,7 +81,7 @@ router.get('/item/:itemCode', async (req, res) => {
     if (!findItem) {
       return res.status(404).json({ error: '아이템을 찾을 수 없어요' });
     }
-
+    // 아이템 상세 정보 값 응답
     const response = {
       itemCode: findItem.itemCode,
       itemName: findItem.itemName,
@@ -101,9 +104,10 @@ router.get('/item/:itemCode', async (req, res) => {
 // 수정할 아이템 명, 아이템 능력을 req(request)에서 json으로 전달받기
 router.post('/item/update/:itemCode', async (req, res) => {
   try {
+    // url로 아이템 코드 전달받기
     const itemCode = +req.params.itemCode;
     const { itemName, hth, atk } = req.body;
-
+    // 데이터 베이스에 수정 값 등록
     const updatedItem = await prisma.item.update({
       where: { itemCode },
       data: {

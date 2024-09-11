@@ -33,7 +33,7 @@ router.post('/account/join', async (req, res) => {
     if (accountPassword !== confirmPassword) {
       return res.status(400).json({ error: '비밀번호와 비밀번호 확인이 일치하지 않습니다.' });
     }
-
+    // 이미 존재하는 계정인지 확인
     const existingAccount = await prisma.account.findUnique({
       where: { accountId: accountId },
     });
@@ -41,9 +41,9 @@ router.post('/account/join', async (req, res) => {
     if (existingAccount) {
       return res.status(400).json({ error: '이미 사용 중인 아이디입니다.' });
     }
-
+    // 비밀번호 해시 값 만들기
     const hashedPassword = await bcrypt.hash(accountPassword, 10);
-
+    // 계정 만들기
     const newAccount = await prisma.account.create({
       data: {
         accountId: accountId,
@@ -67,7 +67,7 @@ router.post('/account/login', async (req, res) => {
     if (!accountId || !accountPassword) {
       return res.status(400).json({ error: '입력을 안한 부분이 있어요.' });
     }
-
+    // 계정 존재여부 확인(중복 불가)
     const account = await prisma.account.findUnique({
       where: { accountId: accountId },
     });
@@ -75,12 +75,12 @@ router.post('/account/login', async (req, res) => {
     if (!account) {
       return res.status(401).json({ error: '존재하지 않는 계정입니다.' });
     }
-
+    // 비밀번호 확인값과 일치하는지 확인
     const passwordMatch = await bcrypt.compare(accountPassword, account.accountPassword);
     if (!passwordMatch) {
       return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
     }
-
+    // 토큰 생성
     const token = jwt.sign(
       { accountId: account.accountId, name: account.name },
       process.env.JWT_SECRET,
