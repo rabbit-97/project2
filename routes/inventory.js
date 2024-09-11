@@ -157,4 +157,85 @@ router.post('/item/sell', authMiddleware, async (req, res) => {
   }
 });
 
+// [필수] 6. 아이템 장착
+// 요청 본문에서 characterId, itemCode, count를 전달받아 캐릭터에게 아이템을 장착
+router.post('/item/equip', authMiddleware, async (req, res) => {
+  try {
+    const { characterId, itemCode } = req.body;
+
+    if (!characterId || !itemCode) {
+      return res.status(400).json({ error: '필수 입력 값이 누락되었습니다.' });
+    }
+
+    // 캐릭터가 존재하는지 확인
+    const character = await prisma.character.findUnique({
+      where: { characterId: characterId },
+    });
+
+    if (!character) {
+      return res.status(404).json({ error: '캐릭터를 찾을 수 없습니다.' });
+    }
+
+    // 아이템이 존재하는지 확인
+    const item = await prisma.item.findUnique({
+      where: { itemCode: itemCode },
+    });
+
+    if (!item) {
+      return res.status(404).json({ error: '아이템을 찾을 수 없습니다.' });
+    }
+
+    // 기존 장착된 아이템이 있는지 확인
+    const EquippedItem = await prisma.equippedItem.findFirst({
+      where: { characterId: characterId },
+    });
+
+    let currentHealth = 0;
+    let currentPower = 0;
+
+    if (EquippedItem) {
+      // 기존 장착된 아이템의 스탯을 가져오기
+      const existingItem = await prisma.item.findUnique({
+        where: { itemCode: EquippedItem.itemCode },
+      });
+
+      if (existingItem) {
+        currentHealth = existingItem.hth;
+        currentPower = existingItem.atk;
+      }
+
+      // 기존 아이템 제거
+      await prisma.equippedItem.delete({
+        where: { equippedItemId: EquippedItem.equippedItemId },
+      });
+    }
+
+    // 새 아이템 장착
+    await prisma.equippedItem.create({
+      data: {
+        characterId: characterId,
+        itemCode: itemCode,
+      },
+    });
+
+    // 새 아이템의 스탯 적용
+    const updatedCharacter = await prisma.character.update({
+      where: { characterId: characterId },
+      data: {
+        health: {
+          increment: item.hth - currentHealth,
+        },
+        power: {
+          increment: item.atk - currentPower,
+        },
+      },
+    });
+
+    res.status(200).json({ message: `아이템 ${item.itemName} 장착 성공`, updatedCharacter });
+  } catch (error) {
+    console.error('아이템 장착 실패:', error);
+    res.status(500).json({ error: '아이템 장착 중 오류가 발생했습니다.' });
+  }
+});
+
 export default router;
