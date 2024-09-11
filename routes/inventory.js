@@ -301,4 +301,90 @@ router.post('/item/unequip', authMiddleware, async (req, res) => {
   }
 });
 
+// **캐릭터가 가지고있는 장비 조회**
+router.get('/inventory', authMiddleware, async (req, res) => {
+  const characterId = req.query.characterId;
+
+  if (!characterId) {
+    return res.status(400).json({ error: '캐릭터 아이디를 입력해야 합니다.' });
+  }
+
+  try {
+    // 인벤토리에서 캐릭터의 아이템을 조회
+    const inventoryItems = await prisma.inventory.findMany({
+      where: { characterId: characterId },
+      include: {
+        item: {
+          select: {
+            itemCode: true,
+            itemName: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json(
+      inventoryItems.map((inventoryItem) => ({
+        item_code: inventoryItem.item.itemCode,
+        item_name: inventoryItem.item.itemName,
+      })),
+    );
+  } catch (error) {
+    console.error('아이템 조회 중 오류 발생:', error);
+    res.status(500).json({ error: '아이템 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+// **캐릭터가 장착한 아이템 조회**
+router.get('/equipped/:characterId', async (req, res) => {
+  const { characterId } = req.params;
+
+  try {
+    const equippedItems = await prisma.equippedItem.findMany({
+      where: {
+        characterId: characterId,
+      },
+      include: {
+        item: {
+          select: {
+            itemCode: true,
+            itemName: true,
+          },
+        },
+      },
+    });
+
+    const response = [];
+    for (const equip of equippedItems) {
+      response.push({
+        item_code: equip.item.itemCode,
+        item_name: equip.item.itemName,
+      });
+    }
+
+    res.json(response);
+  } catch (error) {
+    console.error('아이템 조회 실패:', error);
+    res.status(500).json({ error: '서버 오류' });
+  }
+});
+
+// **돈을 벌자**
+router.post('/earn/:characterId', authMiddleware, async (req, res) => {
+  try {
+    const characterId = req.params.characterId;
+
+    // 캐릭터 정보를 찾아서 돈 100원 추가
+    const updatedCharacter = await prisma.character.update({
+      where: { characterId },
+      data: { money: { increment: 100 } },
+    });
+
+    res.status(200).json({ message: '돈이 추가되었습니다.', money: updatedCharacter.money });
+  } catch (error) {
+    console.error('돈 추가 중 오류:', error);
+    res.status(500).json({ error: '돈을 추가하는 도중 오류가 발생했습니다.' });
+  }
+});
+
 export default router;
