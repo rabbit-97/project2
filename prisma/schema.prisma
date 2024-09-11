@@ -19,6 +19,7 @@ model item {
   itemCode  Int @id
   itemName  String
   atk       Int
+  hth       Int
   price     Int
 }
 

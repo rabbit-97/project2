@@ -103,7 +103,4 @@ router.post('/character/createfromuser', authMiddleware, async (req, res) => {
   console.log(`isValidAuth:${authResult}`);
 });
 
-// 6-4. [도전] "회원"에 귀속된 캐릭터를 삭제하기
-router.post('/character/createfrom', (req, res) => {});
-
 export default router;

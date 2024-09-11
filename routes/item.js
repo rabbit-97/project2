@@ -17,6 +17,7 @@ router.post('/item/create', async (req, res) => {
     const itemCode = req.body.itemcode;
     const itemName = req.body.itemname;
     const atk = req.body.atk;
+    const hth = req.body.hth;
     const price = req.body.price;
 
     const createItem = await prisma.item.create({
@@ -24,6 +25,7 @@ router.post('/item/create', async (req, res) => {
         itemCode: itemCode,
         itemName: itemName,
         atk: atk,
+        hth: hth,
         price: price,
       },
     });
@@ -42,8 +44,14 @@ router.post('/item/create', async (req, res) => {
 // [필수] 2. 아이템 목록 조회
 router.get('/item/list', async (req, res) => {
   try {
-    const item = await prisma.item.findMany();
-    res.status(200).json({ item });
+    const items = await prisma.item.findMany({
+      select: {
+        itemCode: true,
+        itemName: true,
+        price: true,
+      },
+    });
+    res.status(200).json({ items });
   } catch (error) {
     console.error('아이템 목록 조회 실패:', error);
     res.status(500).json({ error: '아이템 목록 조회 중 오류 발생' });
@@ -55,17 +63,36 @@ router.get('/item/list', async (req, res) => {
 router.get('/item/:itemCode', async (req, res) => {
   try {
     const itemCode = parseInt(req.params.itemCode);
-    //찾기
-    const findItem = await prisma.item.findUnique({ where: { itemCode: itemCode } });
-    if (findItem == null) {
-      res.status(404).json({ error: '아이템을 찾을 수 없어요' });
-      return;
+
+    const findItem = await prisma.item.findUnique({
+      where: { itemCode: itemCode },
+      select: {
+        itemCode: true,
+        itemName: true,
+        hth: true,
+        atk: true,
+        price: true,
+      },
+    });
+
+    if (!findItem) {
+      return res.status(404).json({ error: '아이템을 찾을 수 없어요' });
     }
-    //보내기
-    res.status(200).json({ item_info: findItem });
+
+    const response = {
+      itemCode: findItem.itemCode,
+      itemName: findItem.itemName,
+      stat: {
+        hth: findItem.hth,
+        atk: findItem.atk,
+      },
+      price: findItem.price,
+    };
+
+    res.status(200).json(response);
   } catch (error) {
+    console.error('아이템 조회 실패:', error);
     res.status(500).json({ error: '아이템 조회에 실패했어요' });
-    console.log(error);
   }
 });
 
@@ -75,12 +102,13 @@ router.get('/item/:itemCode', async (req, res) => {
 router.post('/item/update/:itemCode', async (req, res) => {
   try {
     const itemCode = +req.params.itemCode;
-    const { itemName, atk } = req.body;
+    const { itemName, hth, atk } = req.body;
 
     const updatedItem = await prisma.item.update({
       where: { itemCode },
       data: {
         itemName,
+        hth,
         atk,
       },
     });
