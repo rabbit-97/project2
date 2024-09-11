@@ -2,6 +2,7 @@ import express from 'express';
 import itemRouter from './routes/item.js';
 import characterRouter from './routes/character.js';
 import accountRouter from './routes/account.js';
+import inventoryRouter from './routes/inventory.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -16,7 +17,7 @@ app.listen(PORT, () => {
   console.log(PORT, '포트로 서버가 열렸어요!!');
 });
 
-app.use('/api', [itemRouter, characterRouter, accountRouter]);
+app.use('/api', [itemRouter, characterRouter, accountRouter, inventoryRouter]);
 
 // [작성 방법]
 // 1. AWS RDS를 생성한 뒤, vscode와 연동하세요 (https://teamsparta.notion.site/3-1-RDB-bea43ca6f6974edca853248b21ad7ebb)

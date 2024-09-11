@@ -84,7 +84,7 @@ router.post('/account/login', async (req, res) => {
     const token = jwt.sign(
       { accountId: account.accountId, name: account.name },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' },
+      { expiresIn: '24h' },
     );
 
     res.status(200).json({ message: '로그인 성공', token: token });

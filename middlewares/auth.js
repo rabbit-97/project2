@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 const authMiddleware = async (req, res, next) => {
+  console.log('authMiddleware 호출됨');
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -16,6 +17,7 @@ const authMiddleware = async (req, res, next) => {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decodedToken;
+
     next();
   } catch (error) {
     console.error('토큰 검증 실패:', error);
