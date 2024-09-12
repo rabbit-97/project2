@@ -30,6 +30,10 @@ router.post('/account/join', async (req, res) => {
       return res.status(400).json({ error: '입력을 안한 부분이 있어요.' });
     }
 
+    if (accountPassword.length < 6) {
+      return res.status(400).json({ error: '비밀번호는 최소 6자 이상이어야 합니다.' });
+    }
+
     if (accountPassword !== confirmPassword) {
       return res.status(400).json({ error: '비밀번호와 비밀번호 확인이 일치하지 않습니다.' });
     }
